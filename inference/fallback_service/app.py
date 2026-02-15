@@ -5,12 +5,11 @@ Rule-based fraud detection used when ML model services are unavailable.
 Provides degraded but functional predictions as a safety net.
 """
 
-import os
 import time
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 from typing import Optional
-from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
+from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 from starlette.responses import Response
 
 app = FastAPI(title="Fallback Fraud Detection Service", version="1.0.0")

@@ -2,11 +2,9 @@
 Unit tests for the API Gateway routing logic.
 """
 
-import pytest
 import os
 import sys
-import asyncio
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import patch
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "gateway"))

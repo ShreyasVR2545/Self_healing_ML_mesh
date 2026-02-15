@@ -7,7 +7,6 @@ FastAPI microservice serving the PyTorch MLP fraud detection model.
 import os
 import sys
 import time
-import json
 import numpy as np
 import torch
 from fastapi import FastAPI, HTTPException
@@ -17,7 +16,7 @@ from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTEN
 from starlette.responses import Response
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-from training.feature_engineering import request_to_dataframe, extract_features, FEATURE_COLUMNS
+from training.feature_engineering import request_to_dataframe, extract_features
 
 # ── App ──
 app = FastAPI(title="PyTorch Fraud Detection Service", version="1.0.0")

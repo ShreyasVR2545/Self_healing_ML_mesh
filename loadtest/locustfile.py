@@ -13,7 +13,7 @@ Usage:
 """
 
 import random
-from locust import HttpUser, task, between, events
+from locust import HttpUser, task, between
 
 
 def generate_transaction():

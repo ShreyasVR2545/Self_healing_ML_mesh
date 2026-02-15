@@ -7,7 +7,7 @@ feature parity between train-time and serve-time.
 
 import numpy as np
 import pandas as pd
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 
 
 # Canonical feature order used by all models

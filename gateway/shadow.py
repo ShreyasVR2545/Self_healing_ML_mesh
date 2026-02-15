@@ -7,9 +7,7 @@ Logs predictions without affecting the primary response path.
 
 import os
 import time
-import asyncio
 import logging
-from typing import Dict, Optional
 
 import httpx
 

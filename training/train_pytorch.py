@@ -217,7 +217,7 @@ def train_pytorch(data_path: str, model_output_dir: str, mlflow_tracking_uri: st
         )
 
         print(f"\nMLflow Run ID: {run.info.run_id}")
-        print(f"Model registered as 'fraud-pytorch'")
+        print("Model registered as 'fraud-pytorch'")
 
     return model, metrics
 

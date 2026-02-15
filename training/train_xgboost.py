@@ -9,7 +9,6 @@ import os
 import sys
 import json
 import argparse
-import numpy as np
 import pandas as pd
 import xgboost as xgb
 import mlflow
@@ -17,7 +16,7 @@ import mlflow.xgboost
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import (
     roc_auc_score, f1_score, precision_score, recall_score,
-    classification_report, confusion_matrix
+    classification_report
 )
 
 # Add project root to path
@@ -120,7 +119,7 @@ def train_xgboost(data_path: str, model_output_dir: str, mlflow_tracking_uri: st
             json.dump(ref_stats, f, indent=2)
 
         print(f"\nMLflow Run ID: {run.info.run_id}")
-        print(f"Model registered as 'fraud-xgboost'")
+        print("Model registered as 'fraud-xgboost'")
 
     return model, metrics
 

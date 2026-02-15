@@ -9,7 +9,6 @@ import argparse
 import os
 import numpy as np
 import pandas as pd
-from datetime import datetime, timedelta
 
 
 def generate_transactions(n_samples: int = 50000, fraud_ratio: float = 0.02, seed: int = 42) -> pd.DataFrame:

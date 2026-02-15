@@ -6,8 +6,6 @@ applies shadow evaluation, exposes Prometheus metrics,
 and manages the rollback lifecycle.
 """
 
-import os
-import sys
 import time
 import asyncio
 import logging
@@ -16,7 +14,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from typing import Optional, Dict
+from typing import Optional
 from prometheus_client import (
     Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
 )

@@ -2,7 +2,6 @@
 Unit tests for inference services.
 """
 
-import pytest
 import sys
 import os
 import numpy as np

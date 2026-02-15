@@ -9,9 +9,8 @@ to detect and route around unhealthy services.
 import os
 import time
 import random
-import asyncio
 import logging
-from typing import Dict, Optional, Any
+from typing import Dict, Optional
 from dataclasses import dataclass, field
 from enum import Enum
 

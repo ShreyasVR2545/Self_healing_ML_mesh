@@ -12,7 +12,7 @@ a reference distribution from training data.
 import os
 import json
 import logging
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 from dataclasses import dataclass
 
 import numpy as np

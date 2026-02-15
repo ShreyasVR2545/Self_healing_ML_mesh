@@ -8,8 +8,6 @@ Exposes /predict and /health endpoints with Prometheus metrics.
 import os
 import sys
 import time
-import json
-import numpy as np
 import xgboost as xgb
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
@@ -20,7 +18,7 @@ from prometheus_client import (
 from starlette.responses import Response
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-from training.feature_engineering import request_to_dataframe, extract_features, FEATURE_COLUMNS
+from training.feature_engineering import request_to_dataframe, extract_features
 
 # ── App ──
 app = FastAPI(title="XGBoost Fraud Detection Service", version="1.0.0")
