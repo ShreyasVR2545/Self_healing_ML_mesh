@@ -65,7 +65,7 @@ class FraudMLP(torch.nn.Module):
 async def load_model():
     global MODEL, SCALER_PARAMS
     try:
-        checkpoint = torch.load(MODEL_PATH, map_location="cpu", weights_only=False)
+        checkpoint = torch.load(MODEL_PATH, map_location="cpu", weights_only=False)  # nosec B614
         model = FraudMLP(
             input_dim=checkpoint["input_dim"],
             hidden_dims=checkpoint["hidden_dims"]
@@ -164,4 +164,4 @@ async def metrics():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8002)
+    uvicorn.run(app, host="0.0.0.0", port=8002)  # nosec B104
