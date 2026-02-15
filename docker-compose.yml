@@ -1,0 +1,169 @@
+version: "3.8"
+
+networks:
+  ml-mesh-net:
+    driver: bridge
+
+services:
+  # ── Redis (Feature Store) ──
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - ml-mesh-net
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # ── MLflow ──
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.9.2
+    ports:
+      - "5000:5000"
+    command: >
+      mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:///mlflow.db --default-artifact-root /mlflow/artifacts
+    volumes:
+      - mlflow-data:/mlflow
+    networks:
+      - ml-mesh-net
+    restart: unless-stopped
+
+  # ── XGBoost Inference Service ──
+  xgboost-service:
+    build:
+      context: .
+      dockerfile: inference/xgboost_service/Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - MODEL_PATH=/app/models/xgboost_v1.json
+      - MODEL_VERSION=xgboost_v1
+    networks:
+      - ml-mesh-net
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8001/health" ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # ── PyTorch Inference Service ──
+  pytorch-service:
+    build:
+      context: .
+      dockerfile: inference/pytorch_service/Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      - MODEL_PATH=/app/models/pytorch_v1.pt
+      - MODEL_VERSION=pytorch_v1
+    networks:
+      - ml-mesh-net
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8002/health" ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # ── Fallback Heuristic Service ──
+  fallback-service:
+    build:
+      context: .
+      dockerfile: inference/fallback_service/Dockerfile
+    ports:
+      - "8003:8003"
+    networks:
+      - ml-mesh-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8003/health" ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # ── API Gateway ──
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - XGBOOST_SERVICE_URL=http://xgboost-service:8001
+      - PYTORCH_SERVICE_URL=http://pytorch-service:8002
+      - FALLBACK_SERVICE_URL=http://fallback-service:8003
+      - TRAFFIC_SPLIT_XGBOOST=0.8
+      - TRAFFIC_SPLIT_PYTORCH=0.2
+      - SHADOW_MODE_ENABLED=false
+      - SHADOW_MODEL=pytorch
+      - CANARY_ERROR_THRESHOLD=0.1
+      - CANARY_LATENCY_P95_THRESHOLD=500
+      - ROLLBACK_CONSECUTIVE_FAILURES=5
+      - HEALTH_CHECK_INTERVAL_SECONDS=10
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    networks:
+      - ml-mesh-net
+    depends_on:
+      xgboost-service:
+        condition: service_healthy
+      fallback-service:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # ── Prometheus ──
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/alerting:/etc/prometheus/rules
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=7d"
+    networks:
+      - ml-mesh-net
+    depends_on:
+      - gateway
+    restart: unless-stopped
+
+  # ── Grafana ──
+  grafana:
+    image: grafana/grafana:10.2.2
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana-data:/var/lib/grafana
+    networks:
+      - ml-mesh-net
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+volumes:
+  mlflow-data:
+  prometheus-data:
+  grafana-data:

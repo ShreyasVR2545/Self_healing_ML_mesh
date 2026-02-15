@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Models
+models/*.json
+models/*.pt
+models/*.pkl
+models/*.joblib
+
+# Data
+data/*.csv
+data/*.parquet
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# Docker
+*.log
+
+# Environment
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Grafana
+monitoring/grafana/data/
+
+# Redis
+dump.rdb
+
+# Pytest
+.pytest_cache/
+htmlcov/
+.coverage

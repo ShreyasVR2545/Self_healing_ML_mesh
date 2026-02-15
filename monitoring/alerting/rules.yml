@@ -1,0 +1,45 @@
+groups:
+  - name: ml_mesh_alerts
+    rules:
+      - alert: HighGatewayLatency
+        expr: histogram_quantile(0.95, rate(gateway_request_latency_seconds_bucket[5m])) > 0.5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Gateway P95 latency exceeds 500ms"
+          description: "P95 latency is {{ $value }}s over the last 5 minutes."
+
+      - alert: HighErrorRate
+        expr: rate(gateway_requests_total{status="error"}[5m]) / rate(gateway_requests_total[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Error rate exceeds 5%"
+          description: "Gateway error rate is {{ $value | humanizePercentage }}."
+
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+
+      - alert: HighXGBoostLatency
+        expr: histogram_quantile(0.95, rate(xgboost_request_latency_seconds_bucket[5m])) > 0.25
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "XGBoost service P95 latency exceeds 250ms"
+
+      - alert: HighFallbackUsage
+        expr: rate(fallback_request_total{status="success"}[5m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Fallback service receiving significant traffic"
+          description: "The fallback heuristic service is handling {{ $value }} req/s."
